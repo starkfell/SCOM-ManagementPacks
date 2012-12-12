@@ -1,0 +1,2605 @@
+<ManagementPack ContentReadable="true" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <Manifest>
+    <Identity>
+      <ID>CustomBaseline</ID>
+      <Version>1.0.0.2</Version>
+    </Identity>
+    <Name>CustomBaseline</Name>
+    <References>
+      <Reference Alias="SCDW">
+        <ID>Microsoft.SystemCenter.DataWarehouse.Library</ID>
+        <Version>6.1.7221.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="SC">
+        <ID>Microsoft.SystemCenter.Library</ID>
+        <Version>6.1.7221.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="SCST">
+        <ID>Microsoft.SystemCenter.SyntheticTransactions.Library</ID>
+        <Version>6.1.7221.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="Windows">
+        <ID>Microsoft.Windows.Library</ID>
+        <Version>6.1.7221.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="Health">
+        <ID>System.Health.Library</ID>
+        <Version>6.1.7221.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="System">
+        <ID>System.Library</ID>
+        <Version>6.1.7221.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="Performance">
+        <ID>System.Performance.Library</ID>
+        <Version>6.1.7221.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+    </References>
+  </Manifest>
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="CustomBaseline.Hosts" Accessibility="Internal" Abstract="false" Base="Windows!Microsoft.Windows.ComputerRole" Hosted="true" Singleton="false" />
+      </ClassTypes>
+    </EntityTypes>
+    <ModuleTypes>
+      <DataSourceModuleType ID="CustomBaseline.PSScriptMemoryUsageCheckDataSource" Accessibility="Internal" Batching="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+          <xsd:element minOccurs="0" name="SyncTime" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Threshold" type="xsd:decimal" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+          <OverrideableParameter ID="SyncTime" Selector="$Config/SyncTime$" ParameterType="string" />
+          <OverrideableParameter ID="Threshold" Selector="$Config/Threshold$" ParameterType="decimal" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <DataSource ID="Scheduler" TypeID="System!System.SimpleScheduler">
+                <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+                <SyncTime>$Config/SyncTime$</SyncTime>
+              </DataSource>
+              <ProbeAction ID="Probe" TypeID="CustomBaseline.PSScriptMemoryUsageCheckProbeAction">
+                <Threshold>$Config/Threshold$</Threshold>
+              </ProbeAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="Probe">
+                <Node ID="Scheduler" />
+              </Node>
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>System!System.PropertyBagData</OutputType>
+      </DataSourceModuleType>
+      <DataSourceModuleType ID="CustomBaseline.PSScriptSingleDriveSpaceCheckDataSource" Accessibility="Internal" Batching="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+          <xsd:element minOccurs="0" name="SyncTime" type="xsd:string" />
+          <xsd:element minOccurs="1" name="DriveLetter" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Threshold" type="xsd:decimal" />
+          <xsd:element minOccurs="1" name="MonitorType" type="xsd:string" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+          <OverrideableParameter ID="SyncTime" Selector="$Config/SyncTime$" ParameterType="string" />
+          <OverrideableParameter ID="DriveLetter" Selector="$Config/DriveLetter$" ParameterType="string" />
+          <OverrideableParameter ID="Threshold" Selector="$Config/Threshold$" ParameterType="decimal" />
+          <OverrideableParameter ID="MonitorType" Selector="$Config/MonitorType$" ParameterType="string" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <DataSource ID="Scheduler" TypeID="System!System.SimpleScheduler">
+                <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+                <SyncTime>$Config/SyncTime$</SyncTime>
+              </DataSource>
+              <ProbeAction ID="Probe" TypeID="CustomBaseline.PSScriptSingleDriveSpaceCheckProbeAction">
+                <DriveLetter>$Config/DriveLetter$</DriveLetter>
+                <Threshold>$Config/Threshold$</Threshold>
+                <MonitorType>$Config/MonitorType$</MonitorType>
+              </ProbeAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="Probe">
+                <Node ID="Scheduler" />
+              </Node>
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>System!System.PropertyBagData</OutputType>
+      </DataSourceModuleType>
+      <DataSourceModuleType ID="CustomBaseline.PSScriptTotalCPUUsageCheckDataSource" Accessibility="Internal" Batching="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+          <xsd:element minOccurs="0" name="SyncTime" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Threshold" type="xsd:decimal" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+          <OverrideableParameter ID="SyncTime" Selector="$Config/SyncTime$" ParameterType="string" />
+          <OverrideableParameter ID="Threshold" Selector="$Config/Threshold$" ParameterType="decimal" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <DataSource ID="Scheduler" TypeID="System!System.SimpleScheduler">
+                <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+                <SyncTime>$Config/SyncTime$</SyncTime>
+              </DataSource>
+              <ProbeAction ID="Probe" TypeID="CustomBaseline.PSScriptTotalCPUUsageCheckProbeAction">
+                <Threshold>$Config/Threshold$</Threshold>
+              </ProbeAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="Probe">
+                <Node ID="Scheduler" />
+              </Node>
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>System!System.PropertyBagData</OutputType>
+      </DataSourceModuleType>
+      <DataSourceModuleType ID="CustomBaseline.TCPPortCheckDataSource" Accessibility="Internal" Batching="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+          <xsd:element minOccurs="0" name="SyncTime" type="xsd:string" />
+          <xsd:element minOccurs="1" name="ServerName" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Port" type="xsd:integer" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+          <OverrideableParameter ID="SyncTime" Selector="$Config/SyncTime$" ParameterType="string" />
+          <OverrideableParameter ID="ServerName" Selector="$Config/ServerName$" ParameterType="string" />
+          <OverrideableParameter ID="Port" Selector="$Config/Port$" ParameterType="int" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <DataSource ID="Scheduler" TypeID="System!System.SimpleScheduler">
+                <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+                <SyncTime>$Config/SyncTime$</SyncTime>
+              </DataSource>
+              <ProbeAction ID="Probe" TypeID="CustomBaseline.TCPPortCheckProbeAction">
+                <ServerName>$Config/ServerName$</ServerName>
+                <Port>$Config/Port$</Port>
+              </ProbeAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="Probe">
+                <Node ID="Scheduler" />
+              </Node>
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>SCST!Microsoft.SystemCenter.SyntheticTransactions.TCPPortCheckData</OutputType>
+      </DataSourceModuleType>
+      <ProbeActionModuleType ID="CustomBaseline.PSScriptMemoryUsageCheckProbeAction" Accessibility="Internal" Batching="false" PassThrough="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="Threshold" type="xsd:decimal" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="Threshold" Selector="$Config/Threshold$" ParameterType="decimal" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <ProbeAction ID="MemoryUsageCheck" TypeID="Windows!Microsoft.Windows.PowerShellPropertyBagTriggerOnlyProbe">
+                <ScriptName>Memory_Usage_Check.ps1</ScriptName>
+                <ScriptBody><![CDATA[
+############################################################################################################################
+# Powershell Script:    Memory_Usage_Check.ps1
+#
+# Author:               Ryan Irujo
+# Inception:            10.05.2012
+# Last Modified:        10.05.2012
+#
+# Purpose:              Returns back Memory Statistics on the Host that is running on utilizing the Assemblies in the 
+#                       'Microsoft.VisualBasic.dll' File which is included in all Microsoft .NET Framework Versions.
+#                       The monitor will return back a CRITICAL State if the Percentage of Memory Free found on the Host is
+#                       below the assigned Threshold value.
+#  					All variables in the Scripts are defined as a 'decimal' type to ensure that the Threshold check is 
+#						more accurate and to support the graphing of all returned values.
+#
+#                       Note that the line of code: "$ScriptAPI.Return($ScriptBag)" is included
+#                       so that the Script can be diagnosed as it returns results to the command line. This line of code
+#                       does not affect the performance of the Script nor does it impact SCOM.
+#
+#
+#                          
+# Syntax:               ./Memory_Usage_Check.ps1 [Threshold] 
+#
+# Example:              ./Memory_Usage_Check.ps1 10.00
+#
+# Changes:              10.05.2012 - [R. Irujo]
+#                       Inception.
+#
+#
+#
+#
+############################################################################################################################
+
+Param($Threshold)
+
+Clear-Host
+
+$ScriptAPI   = New-Object -comObject "MOM.ScriptAPI"
+$ScriptBag   = $ScriptAPI.CreatePropertyBag()
+
+
+# Checking to make sure the Threshold Value (Percent) for the monitor has been provided as a Decimal Value.
+try {
+	if (![decimal]$Threshold -or ($Threshold -eq $null)) {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("MessageText","The Threshold Value must be a Decimal Value and Greater than 0.00!")
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}
+	}
+
+# Checking to make sure the Threshold Value provided is a Number.	
+Catch [System.SystemException] {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("MessageText","The Threshold Value must be a Number!")
+	 	$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+	}
+
+
+# Checking to see if the 'Microsoft.VisualBasic.dll' File we are using to retrieve Memory Stats with exists.
+$VisualBasicDLLPath = "C:\Windows\Microsoft.NET\Framework\v2.0.50727\Microsoft.VisualBasic.dll"
+$VisualBasicDLLFile = [System.IO.File]::Exists($VisualBasicDLLPath)
+
+
+# If the 'Microsoft.VisualBasic.dll' File we are using to retrieve Memory Stats is not found, Script Exits.
+if ($VisualBasicDLLFile -eq $false) {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("MessageText","Unable to Process Memory Stats because the Microsoft.VisualBasic.dll File was not found! -- $($VisualBasicDLLPath)")
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}
+
+# Loading the 'Microsoft.VisualBasic.dll' File into the Script.
+[Reflection.Assembly]::LoadFile("C:\Windows\Microsoft.NET\Framework\v2.0.50727\Microsoft.VisualBasic.dll") | Out-Null
+
+# Retrieving Memory Statistics using the 'Microsoft.VisualBasic.dll' File.
+$Memory = New-Object Microsoft.VisualBasic.Devices.ComputerInfo
+
+# Calculating Memory Statistics (Total, Free, and Used Megabtyes; %Free; %Used).
+[decimal]$TotalMemoryMB     = ($Memory.TotalPhysicalMemory / 1048576).ToString("0.00")
+[decimal]$FreeMemoryMB      = ($Memory.AvailablePhysicalMemory / 1048576).ToString("0.00")
+[decimal]$UsedMemoryMB      = ($TotalMemoryMB - $FreeMemoryMB).ToString("0.00")
+[decimal]$FreeMemoryPercent = (($FreeMemoryMB / $TotalMemoryMB) * 100).ToString("0.00")
+[decimal]$UsedMemoryPercent = (($UsedMemoryMB / $TotalMemoryMB) * 100).ToString("0.00")
+
+
+# This Function returns back a CRITICAL Status if the Percentage of Free Memory is below the Threshold Value.
+function CalcMemory {
+	If ($FreeMemoryPercent -ge $Threshold) {
+		$ScriptBag.AddValue("Status","OK")
+		$ScriptBag.AddValue("FreeMemory(%)",$FreeMemoryPercent)
+		$ScriptBag.AddValue("TotalMemory(MB)",$TotalMemoryMB)
+		$ScriptBag.AddValue("UsedMemory(MB)",$UsedMemoryMB)
+		$ScriptBag.AddValue("FreeMemory(MB)",$FreeMemoryMB)
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}
+	ElseIf ($FreeMemoryPercent -lt $Threshold) {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("FreeMemory(%)",$FreeMemoryPercent)
+		$ScriptBag.AddValue("TotalMemory(MB)",$TotalMemoryMB)
+		$ScriptBag.AddValue("UsedMemory(MB)",$UsedMemoryMB)
+		$ScriptBag.AddValue("FreeMemory(MB)",$FreeMemoryMB)
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}	
+}
+
+
+# The CalcMemory Function is called	Last.
+CalcMemory
+
+
+# [--END--]
+]]></ScriptBody>
+                <Parameters>
+                  <Parameter>
+                    <Name>Threshold</Name>
+                    <Value>$Config/Threshold$</Value>
+                  </Parameter>
+                </Parameters>
+                <TimeoutSeconds>60</TimeoutSeconds>
+              </ProbeAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="MemoryUsageCheck" />
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>System!System.PropertyBagData</OutputType>
+        <TriggerOnly>true</TriggerOnly>
+      </ProbeActionModuleType>
+      <ProbeActionModuleType ID="CustomBaseline.PSScriptSingleDriveSpaceCheckProbeAction" Accessibility="Internal" Batching="false" PassThrough="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="DriveLetter" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Threshold" type="xsd:decimal" />
+          <xsd:element minOccurs="1" name="MonitorType" type="xsd:string" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="DriveLetter" Selector="$Config/DriveLetter$" ParameterType="string" />
+          <OverrideableParameter ID="Threshold" Selector="$Config/Threshold$" ParameterType="decimal" />
+          <OverrideableParameter ID="MonitorType" Selector="$Config/MonitorType$" ParameterType="string" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <ProbeAction ID="PSScriptSingleDriveSpaceCheckProbe" TypeID="Windows!Microsoft.Windows.PowerShellPropertyBagTriggerOnlyProbe">
+                <ScriptName>Single_Drive_Space_Check.ps1</ScriptName>
+                <ScriptBody><![CDATA[
+############################################################################################################################
+# Powershell Script:    Single_Drive_Space_Check.ps1
+#
+# Author:               Ryan Irujo
+# Inception:            09.21.2012
+# Last Modified:        09.21.2012
+#
+# Purpose:              Returns back Drive Space Statistics (MB and Percent Values) on the Host that is running on.
+#                       The Threshold value that is used to determine an OK or CRITICAL State of the monitor is determined
+#                       by the 'MonitorType' Variable. There are two values that the 'MonitorType' variable can be set to:
+#                       'PERCENT', which calculates the monitor's health based on the Percentage of Space Free on the Drive;
+#                       or 'MB', which calculates the monitor's health based on the Megabtyes of Free Space on the Drive.
+#                       Regardles of the MonitorType chosen, the Threshold value is measured as a decimal value and is 
+#                       relative to the calculation being used. 
+#
+#                       Note that the line of code: "$ScriptAPI.Return($ScriptBag)" is included
+#                       so that the Script can be diagnosed as it returns results to the command line. This line of code
+#                       does not affect the performance of the Script nor does it impact SCOM.
+#
+#
+#                          
+# Syntax:               ./Single_Drive_Space_Check.ps1 [Drive_Letter] [Threshold] [MonitorType]
+#
+# Example MB Threshold: ./Single_Drive_Space_Check.ps1 C 3000.00 MB
+# Example % Threshold:  ./Single_Drive_Space_Check.ps1 D 10.00 PERCENT
+#
+# Changes:              09.21.2012 - [R. Irujo]
+#                       Inception.
+#
+#                       09.29.2012 - [R. Irujo]
+#						Removed MessageText Property and added the following Property Values:
+#                       DriveSpaceFree(%),DriveSpaceTotal(MB),DriveSpaceUsed(MB),DriveSpaceFree(MB).
+#
+#
+#
+#
+############################################################################################################################
+Param($DriveLetter,$Threshold,$MonitorType)
+
+Clear-Host
+
+$ScriptAPI   = New-Object -comObject "MOM.ScriptAPI"
+$ScriptBag   = $ScriptAPI.CreatePropertyBag()
+
+
+# Checking to make sure a Drive Letter Value has been provided as an Alphabetic Character.
+if ($DriveLetter -is [int] -or ($DriveLetter -eq $null)) {
+	$ScriptBag.AddValue("Status","CRITICAL")
+	$ScriptBag.AddValue("MessageText","The Drive Letter must be provided as an Alphabetic Character!")
+	$ScriptAPI.Return($ScriptBag)
+	$ScriptBag; exit
+	}
+
+# Checking to make sure the Threshold Value (Percent) for the monitor has been provided as a Decimal Value.
+try {
+	if (![decimal]$Threshold -or ($Threshold -eq $null)) {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("MessageText","The Threshold Value must be a Decimal Value and Greater than 0.00!")
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}
+	}
+
+# Checking to make sure the Threshold Value provided is a Number.	
+Catch [System.SystemException] {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("MessageText","The Threshold Value must be a Number!")
+	 	$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+	}
+
+# Checking to make sure the Monitor Type is either set to PERCENT or MB.
+if (!($MonitorType -ceq "PERCENT" -or $MonitorType -ceq "MB")) {
+	$ScriptBag.AddValue("Status","CRITICAL")
+	$ScriptBag.AddValue("MessageText","The MonitorType Variable must be set to either PERCENT or MB.")
+	$ScriptAPI.Return($ScriptBag)
+	$ScriptBag; exit
+	}
+
+
+# Retrieving Drive Letter to gather information about.
+$Drive = [System.IO.DriveInfo]::GetDrives() | Where-Object {$_.Name -eq "$DriveLetter"}
+
+
+# Checking to make sure that the Drive being checked is Online and Available.
+If ($Drive.IsReady -ne $true) {
+	$ScriptBag.AddValue("Status","CRITICAL")
+	$ScriptBag.AddValue("MessageText","The [$($DriveLetter)] Drive is currently not Online or Available.")
+	$ScriptAPI.Return($ScriptBag)
+	$ScriptBag; exit
+	}
+
+
+# Formatting and Calculating Drive Statistics.
+[decimal]$DriveSpaceTotal       = ($Drive.TotalSize / 1048576).ToString("0.00")
+[decimal]$DriveSpaceFree        = ($Drive.AvailableFreeSpace / 1048576).ToString("0.00")
+[decimal]$DriveSpaceUsed        = ($DriveSpaceTotal - $DriveSpaceFree).ToString("0.00")
+[decimal]$PercentDriveSpaceFree = (($DriveSpaceFree / $DriveSpaceTotal) * 100).ToString("0.00")
+[decimal]$PercentDriveSpaceUsed = (($DriveSpaceUsed / $DriveSpaceTotal) * 100).ToString("0.00")
+
+
+# This function Returns back an OK or CRITICAL Status based upon the Percentage of Free Space left on the Drive.
+function CalcPercent {
+	If ($PercentDriveSpaceFree -ge $Threshold) {
+		$ScriptBag.AddValue("Status","OK")
+		$ScriptBag.AddValue("DriveLetter",$DriveLetter)
+		$ScriptBag.AddValue("DriveSpaceFree(%)",$PercentDriveSpaceFree)
+		$ScriptBag.AddValue("DriveSpaceTotal(MB)",$DriveSpaceTotal)
+		$ScriptBag.AddValue("DriveSpaceUsed(MB)",$DriveSpaceUsed)
+		$ScriptBag.AddValue("DriveSpaceFree(MB)",$DriveSpaceFree)
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}
+	ElseIf ($PercentDriveSpaceFree -lt $Threshold) {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("DriveLetter",$DriveLetter)
+		$ScriptBag.AddValue("DriveSpaceFree(%)",$PercentDriveSpaceFree)
+		$ScriptBag.AddValue("DriveSpaceTotal(MB)",$DriveSpaceTotal)
+		$ScriptBag.AddValue("DriveSpaceUsed(MB)",$DriveSpaceUsed)
+		$ScriptBag.AddValue("DriveSpaceFree(MB)",$DriveSpaceFree)
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}
+}
+
+# This function Returns back an OK or CRITICAL Status based upon the number of Megabytes of Free Space left on the Drive.
+function CalcMB {
+	If ($DriveSpaceFree -ge $Threshold) {
+		$ScriptBag.AddValue("Status","OK")
+		$ScriptBag.AddValue("DriveLetter",$DriveLetter)
+		$ScriptBag.AddValue("DriveSpaceFree(%)",$PercentDriveSpaceFree)	
+		$ScriptBag.AddValue("DriveSpaceTotal(MB)",$DriveSpaceTotal)
+		$ScriptBag.AddValue("DriveSpaceUsed(MB)",$DriveSpaceUsed)
+		$ScriptBag.AddValue("DriveSpaceFree(MB)",$DriveSpaceFree)
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}
+	ElseIf ($DriveSpaceFree -lt $Threshold) {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("DriveLetter",$DriveLetter)
+		$ScriptBag.AddValue("DriveSpaceFree(%)",$PercentDriveSpaceFree)
+		$ScriptBag.AddValue("DriveSpaceTotal(MB)",$DriveSpaceTotal)
+		$ScriptBag.AddValue("DriveSpaceUsed(MB)",$DriveSpaceUsed)
+		$ScriptBag.AddValue("DriveSpaceFree(MB)",$DriveSpaceFree)
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}
+}
+
+
+# Either the 'CalcPercent' or the 'CalcMB' function is called based upon the value of the MonitorType Variable.
+If ($MonitorType -ceq "PERCENT"){
+	CalcPercent
+	}	
+ElseIf ($MonitorType -ceq "MB"){
+	CalcMB
+	}
+
+
+# [--END--]
+]]></ScriptBody>
+                <Parameters>
+                  <Parameter>
+                    <Name>DriveLetter</Name>
+                    <Value>$Config/DriveLetter$</Value>
+                  </Parameter>
+                  <Parameter>
+                    <Name>Threshold</Name>
+                    <Value>$Config/Threshold$</Value>
+                  </Parameter>
+                  <Parameter>
+                    <Name>MonitorType</Name>
+                    <Value>$Config/MonitorType$</Value>
+                  </Parameter>
+                </Parameters>
+                <TimeoutSeconds>60</TimeoutSeconds>
+              </ProbeAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="PSScriptSingleDriveSpaceCheckProbe" />
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>System!System.PropertyBagData</OutputType>
+        <TriggerOnly>true</TriggerOnly>
+      </ProbeActionModuleType>
+      <ProbeActionModuleType ID="CustomBaseline.PSScriptTotalCPUUsageCheckProbeAction" Accessibility="Internal" Batching="false" PassThrough="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="Threshold" type="xsd:decimal" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="Threshold" Selector="$Config/Threshold$" ParameterType="decimal" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <ProbeAction ID="Probe" TypeID="Windows!Microsoft.Windows.PowerShellPropertyBagTriggerOnlyProbe">
+                <ScriptName>Total_CPU_Usage_Check.ps1</ScriptName>
+                <ScriptBody><![CDATA[
+############################################################################################################################
+# Powershell Script:    Total_CPU_Usage_Check.ps1
+#
+# Author:               Ryan Irujo
+# Inception:            10.04.2012
+# Last Modified:        10.04.2012
+#
+# Purpose:              Returns back CPU Usage Statistics of the "_Total" Instance on the Host that is running on. 
+#						A CRITICAL State is returned if the CPU Percentage value returned is above the Threshold value.
+#						All variables in the Scripts are defined as a 'decimal' type to ensure that the Threshold check is
+#						more accurate and to support the graphing of all returned values.
+#
+#                       Note that the line of code: "$ScriptAPI.Return($ScriptBag)" is included
+#                       so that the Script can be diagnosed as it returns results to the command line. This line of code
+#                       does not affect the performance of the Script nor does it impact SCOM.
+#
+#
+#                          
+# Syntax:               ./Total_CPU_Usage_Check.ps1 [Threshold] 
+#
+# Example:              ./Total_CPU_Usage_Check.ps1 90.00
+#
+# Changes:              10.04.2012 - [R. Irujo]
+#                       Inception.
+#
+#
+#
+#
+############################################################################################################################
+Param($Threshold)
+
+Clear-Host
+
+$ScriptAPI   = New-Object -comObject "MOM.ScriptAPI"
+$ScriptBag   = $ScriptAPI.CreatePropertyBag()
+
+# Checking to make sure the Threshold Value (Percent) for the monitor has been provided as a Decimal Value.
+
+try {
+	if (![decimal]$Threshold -or ($Threshold -eq $null)) {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("MessageText","The Threshold Value must be a Decimal Value and Greater than 0.00!")
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}
+	}
+
+# Checking to make sure the Threshold Value provided is a Number.	
+Catch [System.SystemException] {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("MessageText","The Threshold Value must be a Number!")
+	 	$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+	}
+
+
+# The CPU Percentage Value of the "_Total" Instance is retrieved and calculated. Note that the CPU Percentage 
+# is calculated by taking the Raw CPU Percentage Values take exactly one second apart, and then 
+# subtracting and dividing those values from the timestamp difference of each sample.
+$CPU                      = New-Object System.Diagnostics.PerformanceCounter("Processor","% Processor Time","_Total",$true)
+$Sample_1                 = $CPU.NextSample() ; Sleep -Milliseconds 2000
+$Sample_2                 = $CPU.NextSample()	
+[decimal]$TotalCPUPercent = ((1 -(($Sample_2.RawValue - $Sample_1.RawValue) / ($Sample_2.TimeStamp100nSec - $Sample_1.TimeStamp100nSec)))* 100).ToString("0.00")
+
+
+# This Function returns back either an OK or CRITICAL Status depending on the Percentage Value of the CPU "_Total" Instance on the Host.
+function CalcCPU {
+	If ($TotalCPUPercent -ge $Threshold) {
+		$ScriptBag.AddValue("Status","CRITICAL")
+		$ScriptBag.AddValue("TotalCPU(%)",$TotalCPUPercent)
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}
+	ElseIf ($TotalCPUPercent -lt $Threshold) {
+		$ScriptBag.AddValue("Status","OK")
+		$ScriptBag.AddValue("TotalCPU(%)",$TotalCPUPercent)
+		$ScriptAPI.Return($ScriptBag)
+		$ScriptBag; exit
+		}	
+}
+
+
+# The CalcCPU Function is called Last.
+CalcCPU
+
+
+# [--END--]
+  ]]></ScriptBody>
+                <Parameters>
+                  <Parameter>
+                    <Name>Threshold</Name>
+                    <Value>$Config/Threshold$</Value>
+                  </Parameter>
+                </Parameters>
+                <TimeoutSeconds>60</TimeoutSeconds>
+              </ProbeAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="Probe" />
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>System!System.PropertyBagData</OutputType>
+        <TriggerOnly>true</TriggerOnly>
+      </ProbeActionModuleType>
+      <ProbeActionModuleType ID="CustomBaseline.TCPPortCheckProbeAction" Accessibility="Internal" Batching="false" PassThrough="false">
+        <Configuration>
+          <xsd:element minOccurs="1" name="ServerName" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Port" type="xsd:integer" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="ServerName" Selector="$Config/ServerName$" ParameterType="string" />
+          <OverrideableParameter ID="Port" Selector="$Config/Port$" ParameterType="string" />
+        </OverrideableParameters>
+        <ModuleImplementation Isolation="Any">
+          <Composite>
+            <MemberModules>
+              <ProbeAction ID="TCPPortProbe" TypeID="SCST!Microsoft.SystemCenter.SyntheticTransactions.TCPPortCheckProbe">
+                <ServerName>$Config/ServerName$</ServerName>
+                <Port>$Config/Port$</Port>
+              </ProbeAction>
+            </MemberModules>
+            <Composition>
+              <Node ID="TCPPortProbe" />
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>SCST!Microsoft.SystemCenter.SyntheticTransactions.TCPPortCheckData</OutputType>
+        <TriggerOnly>true</TriggerOnly>
+      </ProbeActionModuleType>
+    </ModuleTypes>
+    <MonitorTypes>
+      <UnitMonitorType ID="CustomBaseline.MonitorTypePSScriptMemoryUsageCheck" Accessibility="Internal">
+        <MonitorTypeStates>
+          <MonitorTypeState ID="State_OK" NoDetection="false" />
+          <MonitorTypeState ID="State_CRITICAL" NoDetection="false" />
+        </MonitorTypeStates>
+        <Configuration>
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+          <xsd:element minOccurs="1" name="Threshold" type="xsd:decimal" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+          <OverrideableParameter ID="Threshold" Selector="$Config/Threshold$" ParameterType="decimal" />
+        </OverrideableParameters>
+        <MonitorImplementation>
+          <MemberModules>
+            <DataSource ID="DataSource" TypeID="CustomBaseline.PSScriptMemoryUsageCheckDataSource">
+              <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+              <Threshold>$Config/Threshold$</Threshold>
+            </DataSource>
+            <ProbeAction ID="Probe" TypeID="CustomBaseline.PSScriptMemoryUsageCheckProbeAction">
+              <Threshold>$Config/Threshold$</Threshold>
+            </ProbeAction>
+            <ConditionDetection ID="Status_OK" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="String">Property[@Name='Status']</XPathQuery>
+                  </ValueExpression>
+                  <Operator>Equal</Operator>
+                  <ValueExpression>
+                    <Value Type="String">OK</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+            <ConditionDetection ID="Status_CRITICAL" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="String">Property[@Name='Status']</XPathQuery>
+                  </ValueExpression>
+                  <Operator>Equal</Operator>
+                  <ValueExpression>
+                    <Value Type="String">CRITICAL</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+          </MemberModules>
+          <RegularDetections>
+            <RegularDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+            <RegularDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+          </RegularDetections>
+          <OnDemandDetections>
+            <OnDemandDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+            <OnDemandDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+          </OnDemandDetections>
+        </MonitorImplementation>
+      </UnitMonitorType>
+      <UnitMonitorType ID="CustomBaseline.MonitorTypePSScriptSingleDriveSpaceCheck" Accessibility="Internal">
+        <MonitorTypeStates>
+          <MonitorTypeState ID="State_OK" NoDetection="false" />
+          <MonitorTypeState ID="State_CRITICAL" NoDetection="false" />
+        </MonitorTypeStates>
+        <Configuration>
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+          <xsd:element minOccurs="1" name="DriveLetter" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Threshold" type="xsd:decimal" />
+          <xsd:element minOccurs="1" name="MonitorType" type="xsd:string" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+          <OverrideableParameter ID="DriveLetter" Selector="$Config/DriveLetter$" ParameterType="string" />
+          <OverrideableParameter ID="Threshold" Selector="$Config/Threshold$" ParameterType="decimal" />
+          <OverrideableParameter ID="MonitorType" Selector="$Config/MonitorType$" ParameterType="string" />
+        </OverrideableParameters>
+        <MonitorImplementation>
+          <MemberModules>
+            <DataSource ID="DataSource" TypeID="CustomBaseline.PSScriptSingleDriveSpaceCheckDataSource">
+              <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+              <DriveLetter>$Config/DriveLetter$</DriveLetter>
+              <Threshold>$Config/Threshold$</Threshold>
+              <MonitorType>$Config/MonitorType$</MonitorType>
+            </DataSource>
+            <ProbeAction ID="Probe" TypeID="CustomBaseline.PSScriptSingleDriveSpaceCheckProbeAction">
+              <DriveLetter>$Config/DriveLetter$</DriveLetter>
+              <Threshold>$Config/Threshold$</Threshold>
+              <MonitorType>$Config/MonitorType$</MonitorType>
+            </ProbeAction>
+            <ConditionDetection ID="Status_OK" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="String">Property[@Name='Status']</XPathQuery>
+                  </ValueExpression>
+                  <Operator>Equal</Operator>
+                  <ValueExpression>
+                    <Value Type="String">OK</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+            <ConditionDetection ID="Status_CRITICAL" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="String">Property[@Name='Status']</XPathQuery>
+                  </ValueExpression>
+                  <Operator>Equal</Operator>
+                  <ValueExpression>
+                    <Value Type="String">CRITICAL</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+          </MemberModules>
+          <RegularDetections>
+            <RegularDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+            <RegularDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+          </RegularDetections>
+          <OnDemandDetections>
+            <OnDemandDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+            <OnDemandDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+          </OnDemandDetections>
+        </MonitorImplementation>
+      </UnitMonitorType>
+      <UnitMonitorType ID="CustomBaseline.MonitorTypePSScriptTotalCPUUsageCheck" Accessibility="Internal">
+        <MonitorTypeStates>
+          <MonitorTypeState ID="State_OK" NoDetection="false" />
+          <MonitorTypeState ID="State_CRITICAL" NoDetection="false" />
+        </MonitorTypeStates>
+        <Configuration>
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+          <xsd:element minOccurs="1" name="Threshold" type="xsd:decimal" />
+          <xsd:element minOccurs="1" name="ConsolidationInterval" type="xsd:integer" />
+          <xsd:element minOccurs="1" name="ConsolidationNumberOfSamples" type="xsd:integer" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+          <OverrideableParameter ID="Threshold" Selector="$Config/Threshold$" ParameterType="decimal" />
+          <OverrideableParameter ID="ConsolidationInterval" Selector="$Config/ConsolidationInterval$" ParameterType="int" />
+          <OverrideableParameter ID="ConsolidationNumberOfSamples" Selector="$Config/ConsolidationNumberOfSamples$" ParameterType="int" />
+        </OverrideableParameters>
+        <MonitorImplementation>
+          <MemberModules>
+            <DataSource ID="DataSource" TypeID="CustomBaseline.PSScriptTotalCPUUsageCheckDataSource">
+              <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+              <Threshold>$Config/Threshold$</Threshold>
+            </DataSource>
+            <ProbeAction ID="Probe" TypeID="CustomBaseline.PSScriptTotalCPUUsageCheckProbeAction">
+              <Threshold>$Config/Threshold$</Threshold>
+            </ProbeAction>
+            <ConditionDetection ID="ConsecutiveSamplesConsolidator" TypeID="System!System.ConsolidatorCondition">
+              <Consolidator>
+                <ConsolidationProperties />
+                <TimeControl>
+                  <WithinTimeSchedule>
+                    <Interval>$Config/ConsolidationInterval$</Interval>
+                  </WithinTimeSchedule>
+                </TimeControl>
+                <CountingCondition>
+                  <Count>$Config/ConsolidationNumberOfSamples$</Count>
+                  <CountMode>OnNewItemTestOutputRestart_OnTimerSlideByOne</CountMode>
+                </CountingCondition>
+              </Consolidator>
+            </ConditionDetection>
+            <ConditionDetection ID="Status_OK" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="String">Property[@Name='Status']</XPathQuery>
+                  </ValueExpression>
+                  <Operator>Equal</Operator>
+                  <ValueExpression>
+                    <Value Type="String">OK</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+            <ConditionDetection ID="Status_CRITICAL" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="String">Property[@Name='Status']</XPathQuery>
+                  </ValueExpression>
+                  <Operator>Equal</Operator>
+                  <ValueExpression>
+                    <Value Type="String">CRITICAL</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+          </MemberModules>
+          <RegularDetections>
+            <RegularDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+            <RegularDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="ConsecutiveSamplesConsolidator">
+                <Node ID="Status_CRITICAL">
+                  <Node ID="DataSource" />
+                </Node>
+              </Node>
+            </RegularDetection>
+          </RegularDetections>
+          <OnDemandDetections>
+            <OnDemandDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+            <OnDemandDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="ConsecutiveSamplesConsolidator">
+                <Node ID="Status_CRITICAL">
+                  <Node ID="Probe" />
+                </Node>
+              </Node>
+            </OnDemandDetection>
+          </OnDemandDetections>
+        </MonitorImplementation>
+      </UnitMonitorType>
+      <UnitMonitorType ID="CustomBaseline.MonitorTypeTCPPortCheckConnectionRefused" Accessibility="Internal">
+        <MonitorTypeStates>
+          <MonitorTypeState ID="State_OK" NoDetection="false" />
+          <MonitorTypeState ID="State_CRITICAL" NoDetection="false" />
+        </MonitorTypeStates>
+        <Configuration>
+          <xsd:element minOccurs="1" name="ServerName" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Port" type="xsd:integer" />
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="ServerName" Selector="$Config/ServerName$" ParameterType="string" />
+          <OverrideableParameter ID="Port" Selector="$Config/Port$" ParameterType="int" />
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+        </OverrideableParameters>
+        <MonitorImplementation>
+          <MemberModules>
+            <DataSource ID="DataSource" TypeID="CustomBaseline.TCPPortCheckDataSource">
+              <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+              <ServerName>$Config/ServerName$</ServerName>
+              <Port>$Config/Port$</Port>
+            </DataSource>
+            <ProbeAction ID="Probe" TypeID="CustomBaseline.TCPPortCheckProbeAction">
+              <ServerName>$Config/ServerName$</ServerName>
+              <Port>$Config/Port$</Port>
+            </ProbeAction>
+            <ConditionDetection ID="Status_OK" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="UnsignedInteger">StatusCode</XPathQuery>
+                  </ValueExpression>
+                  <Operator>NotEqual</Operator>
+                  <ValueExpression>
+                    <Value Type="UnsignedInteger">2147952461</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+            <ConditionDetection ID="Status_CRITICAL" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="UnsignedInteger">StatusCode</XPathQuery>
+                  </ValueExpression>
+                  <Operator>Equal</Operator>
+                  <ValueExpression>
+                    <Value Type="UnsignedInteger">2147952461</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+          </MemberModules>
+          <RegularDetections>
+            <RegularDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+            <RegularDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+          </RegularDetections>
+          <OnDemandDetections>
+            <OnDemandDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+            <OnDemandDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+          </OnDemandDetections>
+        </MonitorImplementation>
+      </UnitMonitorType>
+      <UnitMonitorType ID="CustomBaseline.MonitorTypeTCPPortCheckDNSResolutionFailure" Accessibility="Internal">
+        <MonitorTypeStates>
+          <MonitorTypeState ID="State_OK" NoDetection="false" />
+          <MonitorTypeState ID="State_CRITICAL" NoDetection="false" />
+        </MonitorTypeStates>
+        <Configuration>
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+          <xsd:element minOccurs="1" name="ServerName" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Port" type="xsd:integer" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+          <OverrideableParameter ID="ServerName" Selector="$Config/ServerName$" ParameterType="string" />
+          <OverrideableParameter ID="Port" Selector="$Config/Port$" ParameterType="int" />
+        </OverrideableParameters>
+        <MonitorImplementation>
+          <MemberModules>
+            <DataSource ID="DataSource" TypeID="CustomBaseline.TCPPortCheckDataSource">
+              <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+              <ServerName>$Config/ServerName$</ServerName>
+              <Port>$Config/Port$</Port>
+            </DataSource>
+            <ProbeAction ID="Probe" TypeID="CustomBaseline.TCPPortCheckProbeAction">
+              <ServerName>$Config/ServerName$</ServerName>
+              <Port>$Config/Port$</Port>
+            </ProbeAction>
+            <ConditionDetection ID="Status_OK" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="UnsignedInteger">StatusCode</XPathQuery>
+                  </ValueExpression>
+                  <Operator>NotEqual</Operator>
+                  <ValueExpression>
+                    <Value Type="UnsignedInteger">2147953401</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+            <ConditionDetection ID="Status_CRITICAL" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="UnsignedInteger">StatusCode</XPathQuery>
+                  </ValueExpression>
+                  <Operator>Equal</Operator>
+                  <ValueExpression>
+                    <Value Type="UnsignedInteger">2147953401</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+          </MemberModules>
+          <RegularDetections>
+            <RegularDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+            <RegularDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+          </RegularDetections>
+          <OnDemandDetections>
+            <OnDemandDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+            <OnDemandDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+          </OnDemandDetections>
+        </MonitorImplementation>
+      </UnitMonitorType>
+      <UnitMonitorType ID="CustomBaseline.MonitorTypeTCPPortCheckHostUnreachable" Accessibility="Internal">
+        <MonitorTypeStates>
+          <MonitorTypeState ID="State_OK" NoDetection="false" />
+          <MonitorTypeState ID="State_CRITICAL" NoDetection="false" />
+        </MonitorTypeStates>
+        <Configuration>
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+          <xsd:element minOccurs="1" name="ServerName" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Port" type="xsd:integer" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+          <OverrideableParameter ID="ServerName" Selector="$Config/ServerName$" ParameterType="string" />
+          <OverrideableParameter ID="Port" Selector="$Config/Port$" ParameterType="int" />
+        </OverrideableParameters>
+        <MonitorImplementation>
+          <MemberModules>
+            <DataSource ID="DataSource" TypeID="CustomBaseline.TCPPortCheckDataSource">
+              <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+              <ServerName>$Config/ServerName$</ServerName>
+              <Port>$Config/Port$</Port>
+            </DataSource>
+            <ProbeAction ID="Probe" TypeID="CustomBaseline.TCPPortCheckProbeAction">
+              <ServerName>$Config/ServerName$</ServerName>
+              <Port>$Config/Port$</Port>
+            </ProbeAction>
+            <ConditionDetection ID="Status_OK" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="UnsignedInteger">StatusCode</XPathQuery>
+                  </ValueExpression>
+                  <Operator>NotEqual</Operator>
+                  <ValueExpression>
+                    <Value Type="UnsignedInteger">2147952465</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+            <ConditionDetection ID="Status_CRITICAL" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="UnsignedInteger">StatusCode</XPathQuery>
+                  </ValueExpression>
+                  <Operator>Equal</Operator>
+                  <ValueExpression>
+                    <Value Type="UnsignedInteger">2147952465</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+          </MemberModules>
+          <RegularDetections>
+            <RegularDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+            <RegularDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+          </RegularDetections>
+          <OnDemandDetections>
+            <OnDemandDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+            <OnDemandDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+          </OnDemandDetections>
+        </MonitorImplementation>
+      </UnitMonitorType>
+      <UnitMonitorType ID="CustomBaseline.MonitorTypeTCPPortCheckTimedOut" Accessibility="Internal">
+        <MonitorTypeStates>
+          <MonitorTypeState ID="State_OK" NoDetection="false" />
+          <MonitorTypeState ID="State_CRITICAL" NoDetection="false" />
+        </MonitorTypeStates>
+        <Configuration>
+          <xsd:element minOccurs="1" name="IntervalSeconds" type="xsd:integer" />
+          <xsd:element minOccurs="1" name="ServerName" type="xsd:string" />
+          <xsd:element minOccurs="1" name="Port" type="xsd:integer" />
+        </Configuration>
+        <OverrideableParameters>
+          <OverrideableParameter ID="IntervalSeconds" Selector="$Config/IntervalSeconds$" ParameterType="int" />
+          <OverrideableParameter ID="ServerName" Selector="$Config/ServerName$" ParameterType="string" />
+          <OverrideableParameter ID="Port" Selector="$Config/Port$" ParameterType="int" />
+        </OverrideableParameters>
+        <MonitorImplementation>
+          <MemberModules>
+            <DataSource ID="DataSource" TypeID="CustomBaseline.TCPPortCheckDataSource">
+              <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+              <ServerName>$Config/ServerName$</ServerName>
+              <Port>$Config/Port$</Port>
+            </DataSource>
+            <ProbeAction ID="Probe" TypeID="CustomBaseline.TCPPortCheckProbeAction">
+              <ServerName>$Config/ServerName$</ServerName>
+              <Port>$Config/Port$</Port>
+            </ProbeAction>
+            <ConditionDetection ID="Status_OK" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="UnsignedInteger">StatusCode</XPathQuery>
+                  </ValueExpression>
+                  <Operator>NotEqual</Operator>
+                  <ValueExpression>
+                    <Value Type="UnsignedInteger">2147952460</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+            <ConditionDetection ID="Status_CRITICAL" TypeID="System!System.ExpressionFilter">
+              <Expression>
+                <SimpleExpression>
+                  <ValueExpression>
+                    <XPathQuery Type="UnsignedInteger">StatusCode</XPathQuery>
+                  </ValueExpression>
+                  <Operator>Equal</Operator>
+                  <ValueExpression>
+                    <Value Type="UnsignedInteger">2147952460</Value>
+                  </ValueExpression>
+                </SimpleExpression>
+              </Expression>
+            </ConditionDetection>
+          </MemberModules>
+          <RegularDetections>
+            <RegularDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+            <RegularDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="DataSource" />
+              </Node>
+            </RegularDetection>
+          </RegularDetections>
+          <OnDemandDetections>
+            <OnDemandDetection MonitorTypeStateID="State_OK">
+              <Node ID="Status_OK">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+            <OnDemandDetection MonitorTypeStateID="State_CRITICAL">
+              <Node ID="Status_CRITICAL">
+                <Node ID="Probe" />
+              </Node>
+            </OnDemandDetection>
+          </OnDemandDetections>
+        </MonitorImplementation>
+      </UnitMonitorType>
+    </MonitorTypes>
+  </TypeDefinitions>
+  <Monitoring>
+    <Discoveries>
+      <Discovery ID="CustomBaseline.Discovery" Enabled="true" Target="SC!Microsoft.SystemCenter.Agent" ConfirmDelivery="true" Remotable="true" Priority="Normal">
+        <Category>Discovery</Category>
+        <DiscoveryTypes>
+          <DiscoveryClass TypeID="CustomBaseline.Hosts" />
+        </DiscoveryTypes>
+        <DataSource ID="DS" TypeID="Windows!Microsoft.Windows.FilteredRegistryDiscoveryProvider">
+          <ComputerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/NetworkName$</ComputerName>
+          <RegistryAttributeDefinitions>
+            <RegistryAttributeDefinition>
+              <AttributeName>CustomBaselineRegKey</AttributeName>
+              <Path>SOFTWARE\SCOM\CustomBaseline</Path>
+              <PathType>0</PathType>
+              <AttributeType>0</AttributeType>
+            </RegistryAttributeDefinition>
+          </RegistryAttributeDefinitions>
+          <Frequency>300</Frequency>
+          <ClassId>$MPElement[Name="CustomBaseline.Hosts"]$</ClassId>
+          <InstanceSettings>
+            <Settings>
+              <Setting>
+                <Name>$MPElement[Name="Windows!Microsoft.Windows.Computer"]/PrincipalName$</Name>
+                <Value>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</Value>
+              </Setting>
+              <Setting>
+                <Name>$MPElement[Name="System!System.Entity"]/DisplayName$</Name>
+                <Value>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</Value>
+              </Setting>
+            </Settings>
+          </InstanceSettings>
+          <Expression>
+            <SimpleExpression>
+              <ValueExpression>
+                <XPathQuery Type="String">Values/CustomBaselineRegKey</XPathQuery>
+              </ValueExpression>
+              <Operator>Equal</Operator>
+              <ValueExpression>
+                <Value Type="String">True</Value>
+              </ValueExpression>
+            </SimpleExpression>
+          </Expression>
+        </DataSource>
+      </Discovery>
+    </Discoveries>
+    <Rules>
+      <Rule ID="CustomBaseline.PSScriptDrive_C_SpaceCheckRule" Enabled="true" Target="CustomBaseline.Hosts" ConfirmDelivery="true" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>PerformanceCollection</Category>
+        <DataSources>
+          <DataSource ID="DataSource" TypeID="CustomBaseline.PSScriptSingleDriveSpaceCheckDataSource">
+            <IntervalSeconds>600</IntervalSeconds>
+            <DriveLetter>C:\</DriveLetter>
+            <Threshold>10.00</Threshold>
+            <MonitorType>PERCENT</MonitorType>
+          </DataSource>
+        </DataSources>
+        <ConditionDetection ID="MapToPerfData" TypeID="Performance!System.Performance.DataGenericMapper">
+          <ObjectName>Logical Disk</ObjectName>
+          <CounterName>DriveSpaceFree(MB)</CounterName>
+          <InstanceName>$Data/Property[@Name='DriveLetter']$</InstanceName>
+          <Value>$Data/Property[@Name='DriveSpaceFree(MB)']$</Value>
+        </ConditionDetection>
+        <WriteActions>
+          <WriteAction ID="WriteToDB" TypeID="SC!Microsoft.SystemCenter.CollectPerformanceData" />
+          <WriteAction ID="WriteToDW" TypeID="SCDW!Microsoft.SystemCenter.DataWarehouse.PublishPerformanceData" />
+        </WriteActions>
+      </Rule>
+      <Rule ID="CustomBaseline.PSScriptDrive_D_SpaceCheckRule" Enabled="true" Target="CustomBaseline.Hosts" ConfirmDelivery="true" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>PerformanceCollection</Category>
+        <DataSources>
+          <DataSource ID="DataSource" TypeID="CustomBaseline.PSScriptSingleDriveSpaceCheckDataSource">
+            <IntervalSeconds>600</IntervalSeconds>
+            <DriveLetter>D:\</DriveLetter>
+            <Threshold>10.00</Threshold>
+            <MonitorType>PERCENT</MonitorType>
+          </DataSource>
+        </DataSources>
+        <ConditionDetection ID="MapToPerfData" TypeID="Performance!System.Performance.DataGenericMapper">
+          <ObjectName>Logical Disk</ObjectName>
+          <CounterName>DriveSpaceFree(MB)</CounterName>
+          <InstanceName>$Data/Property[@Name='DriveLetter']$</InstanceName>
+          <Value>$Data/Property[@Name='DriveSpaceFree(MB)']$</Value>
+        </ConditionDetection>
+        <WriteActions>
+          <WriteAction ID="WriteToDB" TypeID="SC!Microsoft.SystemCenter.CollectPerformanceData" />
+          <WriteAction ID="WriteToDW" TypeID="SCDW!Microsoft.SystemCenter.DataWarehouse.PublishPerformanceData" />
+        </WriteActions>
+      </Rule>
+      <Rule ID="CustomBaseline.PSScriptMemoryUsageCheckMemoryFreeMBRule" Enabled="true" Target="CustomBaseline.Hosts" ConfirmDelivery="true" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>PerformanceCollection</Category>
+        <DataSources>
+          <DataSource ID="DataSource" TypeID="CustomBaseline.PSScriptMemoryUsageCheckDataSource">
+            <IntervalSeconds>300</IntervalSeconds>
+            <Threshold>10.00</Threshold>
+          </DataSource>
+        </DataSources>
+        <ConditionDetection ID="MapToPerf" TypeID="Performance!System.Performance.DataGenericMapper">
+          <ObjectName>Memory</ObjectName>
+          <CounterName>FreeMemory(MB)</CounterName>
+          <InstanceName />
+          <Value>$Data/Property[@Name='FreeMemory(MB)']$</Value>
+        </ConditionDetection>
+        <WriteActions>
+          <WriteAction ID="WriteToDB" TypeID="SC!Microsoft.SystemCenter.CollectPerformanceData" />
+          <WriteAction ID="WriteToDW" TypeID="SCDW!Microsoft.SystemCenter.DataWarehouse.PublishPerformanceData" />
+        </WriteActions>
+      </Rule>
+      <Rule ID="CustomBaseline.PSScriptMemoryUsageCheckMemoryFreePercentRule" Enabled="true" Target="CustomBaseline.Hosts" ConfirmDelivery="true" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>PerformanceCollection</Category>
+        <DataSources>
+          <DataSource ID="DataSource" TypeID="CustomBaseline.PSScriptMemoryUsageCheckDataSource">
+            <IntervalSeconds>300</IntervalSeconds>
+            <Threshold>10.00</Threshold>
+          </DataSource>
+        </DataSources>
+        <ConditionDetection ID="MapToPerf" TypeID="Performance!System.Performance.DataGenericMapper">
+          <ObjectName>Memory</ObjectName>
+          <CounterName><![CDATA[FreeMemory(%)]]></CounterName>
+          <InstanceName />
+          <Value><![CDATA[$Data/Property[@Name='FreeMemory(%)']$]]></Value>
+        </ConditionDetection>
+        <WriteActions>
+          <WriteAction ID="WriteToDW" TypeID="SCDW!Microsoft.SystemCenter.DataWarehouse.PublishPerformanceData" />
+          <WriteAction ID="WriteToDB" TypeID="SC!Microsoft.SystemCenter.CollectPerformanceData" />
+        </WriteActions>
+      </Rule>
+      <Rule ID="CustomBaseline.PSScriptTotalCPUUsageCheckRule" Enabled="true" Target="CustomBaseline.Hosts" ConfirmDelivery="true" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>PerformanceCollection</Category>
+        <DataSources>
+          <DataSource ID="DataSource" TypeID="CustomBaseline.PSScriptTotalCPUUsageCheckDataSource">
+            <IntervalSeconds>300</IntervalSeconds>
+            <Threshold>90.00</Threshold>
+          </DataSource>
+        </DataSources>
+        <ConditionDetection ID="MapToPerf" TypeID="Performance!System.Performance.DataGenericMapper">
+          <ObjectName><![CDATA[Total Processor %]]></ObjectName>
+          <CounterName><![CDATA[TotalCPU(%)]]></CounterName>
+          <InstanceName />
+          <Value><![CDATA[$Data/Property[@Name='TotalCPU(%)']$]]></Value>
+        </ConditionDetection>
+        <WriteActions>
+          <WriteAction ID="WriteToDW" TypeID="SCDW!Microsoft.SystemCenter.DataWarehouse.PublishPerformanceData" />
+          <WriteAction ID="WriteToDB" TypeID="SC!Microsoft.SystemCenter.CollectPerformanceData" />
+        </WriteActions>
+      </Rule>
+      <Rule ID="CustomBaseline.TCPPortCheck3389ConnectionTimeRule" Enabled="true" Target="CustomBaseline.Hosts" ConfirmDelivery="true" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>PerformanceCollection</Category>
+        <DataSources>
+          <DataSource ID="DataSource" TypeID="CustomBaseline.TCPPortCheckDataSource">
+            <IntervalSeconds>300</IntervalSeconds>
+            <ServerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</ServerName>
+            <Port>3389</Port>
+          </DataSource>
+        </DataSources>
+        <ConditionDetection ID="MapToPerf" TypeID="Performance!System.Performance.DataGenericMapper">
+          <ObjectName>TCP Port Check</ObjectName>
+          <CounterName>Connection Time</CounterName>
+          <InstanceName>$Data/ServerName$:$Data/Port$</InstanceName>
+          <Value>$Data/ConnectionTime$</Value>
+        </ConditionDetection>
+        <WriteActions>
+          <WriteAction ID="MapToDB" TypeID="SC!Microsoft.SystemCenter.CollectPerformanceData" />
+          <WriteAction ID="MapToDW" TypeID="SCDW!Microsoft.SystemCenter.DataWarehouse.PublishPerformanceData" />
+        </WriteActions>
+      </Rule>
+    </Rules>
+    <Monitors>
+      <AggregateMonitor ID="CustomBaseline.DriveSpaceHealth" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="Health!System.Health.AvailabilityState" Remotable="true" Priority="Normal">
+        <Category>AvailabilityHealth</Category>
+        <Algorithm>WorstOf</Algorithm>
+      </AggregateMonitor>
+      <AggregateMonitor ID="CustomBaseline.MemoryHealth" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="Health!System.Health.PerformanceState" Remotable="true" Priority="Normal">
+        <Category>Custom</Category>
+        <Algorithm>WorstOf</Algorithm>
+      </AggregateMonitor>
+      <AggregateMonitor ID="CustomBaseline.ProcessorHealth" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="Health!System.Health.PerformanceState" Remotable="true" Priority="Normal">
+        <Category>Custom</Category>
+        <Algorithm>WorstOf</Algorithm>
+      </AggregateMonitor>
+      <AggregateMonitor ID="CustomBaseline.ServicesHealth" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="Health!System.Health.AvailabilityState" Remotable="true" Priority="Normal">
+        <Category>AvailabilityHealth</Category>
+        <Algorithm>WorstOf</Algorithm>
+      </AggregateMonitor>
+      <AggregateMonitor ID="CustomBaseline.TCPPort3389" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="CustomBaseline.TCPPortHealth" Remotable="true" Priority="Normal">
+        <Category>AvailabilityHealth</Category>
+        <Algorithm>WorstOf</Algorithm>
+      </AggregateMonitor>
+      <AggregateMonitor ID="CustomBaseline.TCPPortHealth" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="Health!System.Health.AvailabilityState" Remotable="true" Priority="Normal">
+        <Category>AvailabilityHealth</Category>
+        <Algorithm>WorstOf</Algorithm>
+      </AggregateMonitor>
+      <UnitMonitor ID="CustomBaseline.UnitMonitorDriveSpaceCheck_C" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="CustomBaseline.DriveSpaceHealth" Remotable="true" Priority="Normal" TypeID="CustomBaseline.MonitorTypePSScriptSingleDriveSpaceCheck" ConfirmDelivery="true">
+        <Category>AvailabilityHealth</Category>
+        <AlertSettings AlertMessage="CustomBaseline.UnitMonitorDriveSpaceCheck_C_AlertMessageResourceID">
+          <AlertOnState>Error</AlertOnState>
+          <AutoResolve>true</AutoResolve>
+          <AlertPriority>Normal</AlertPriority>
+          <AlertSeverity>Error</AlertSeverity>
+          <AlertParameters>
+            <AlertParameter1>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</AlertParameter1>
+            <AlertParameter2><![CDATA[$Data/Context/Property[@Name='DriveSpaceFree(%)']$]]></AlertParameter2>
+            <AlertParameter3>$Data/Context/Property[@Name='DriveLetter']$</AlertParameter3>
+          </AlertParameters>
+        </AlertSettings>
+        <OperationalStates>
+          <OperationalState ID="UIGeneratedOpStateId270d19d97f2940c391d35c6aa3b8b330" MonitorTypeStateID="State_OK" HealthState="Success" />
+          <OperationalState ID="UIGeneratedOpStateId69c2409b0aab4fd8a2e1566b9dba5ce1" MonitorTypeStateID="State_CRITICAL" HealthState="Error" />
+        </OperationalStates>
+        <Configuration>
+          <IntervalSeconds>600</IntervalSeconds>
+          <DriveLetter>C:\</DriveLetter>
+          <Threshold>10.00</Threshold>
+          <MonitorType>PERCENT</MonitorType>
+        </Configuration>
+      </UnitMonitor>
+      <UnitMonitor ID="CustomBaseline.UnitMonitorDriveSpaceCheck_D" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="CustomBaseline.DriveSpaceHealth" Remotable="true" Priority="Normal" TypeID="CustomBaseline.MonitorTypePSScriptSingleDriveSpaceCheck" ConfirmDelivery="true">
+        <Category>AvailabilityHealth</Category>
+        <AlertSettings AlertMessage="CustomBaseline.UnitMonitorDriveSpaceCheck_D_AlertMessageResourceID">
+          <AlertOnState>Error</AlertOnState>
+          <AutoResolve>true</AutoResolve>
+          <AlertPriority>Normal</AlertPriority>
+          <AlertSeverity>Error</AlertSeverity>
+          <AlertParameters>
+            <AlertParameter1>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</AlertParameter1>
+            <AlertParameter2><![CDATA[$Data/Context/Property[@Name='DriveSpaceFree(%)']$]]></AlertParameter2>
+            <AlertParameter3>$Data/Context/Property[@Name='DriveLetter']$</AlertParameter3>
+          </AlertParameters>
+        </AlertSettings>
+        <OperationalStates>
+          <OperationalState ID="UIGeneratedOpStateIdef8182741c3f488c8c74c2602fe4c8af" MonitorTypeStateID="State_OK" HealthState="Success" />
+          <OperationalState ID="UIGeneratedOpStateId3e977ee08fa74b27889567a465026ed9" MonitorTypeStateID="State_CRITICAL" HealthState="Error" />
+        </OperationalStates>
+        <Configuration>
+          <IntervalSeconds>600</IntervalSeconds>
+          <DriveLetter>D:\</DriveLetter>
+          <Threshold>10.00</Threshold>
+          <MonitorType>PERCENT</MonitorType>
+        </Configuration>
+      </UnitMonitor>
+      <UnitMonitor ID="CustomBaseline.UnitMonitorMemoryUsage" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="CustomBaseline.MemoryHealth" Remotable="true" Priority="Normal" TypeID="CustomBaseline.MonitorTypePSScriptMemoryUsageCheck" ConfirmDelivery="true">
+        <Category>PerformanceHealth</Category>
+        <AlertSettings AlertMessage="CustomBaseline.UnitMonitorMemoryUsage_AlertMessageResourceID">
+          <AlertOnState>Error</AlertOnState>
+          <AutoResolve>true</AutoResolve>
+          <AlertPriority>Normal</AlertPriority>
+          <AlertSeverity>Error</AlertSeverity>
+          <AlertParameters>
+            <AlertParameter1>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</AlertParameter1>
+            <AlertParameter2><![CDATA[$Data/Context/Property[@Name='MemoryFree(%)']$]]></AlertParameter2>
+          </AlertParameters>
+        </AlertSettings>
+        <OperationalStates>
+          <OperationalState ID="UIGeneratedOpStateId112af943eb754f288181f5bdd114b8a3" MonitorTypeStateID="State_OK" HealthState="Success" />
+          <OperationalState ID="UIGeneratedOpStateId415d292efbb244dabf7bb218cb7f8a67" MonitorTypeStateID="State_CRITICAL" HealthState="Error" />
+        </OperationalStates>
+        <Configuration>
+          <IntervalSeconds>300</IntervalSeconds>
+          <Threshold>10.00</Threshold>
+        </Configuration>
+      </UnitMonitor>
+      <UnitMonitor ID="CustomBaseline.UnitMonitorServiceCheckTaskScheduler" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="CustomBaseline.ServicesHealth" Remotable="true" Priority="Normal" TypeID="Windows!Microsoft.Windows.CheckNTServiceStateMonitorType" ConfirmDelivery="true">
+        <Category>AvailabilityHealth</Category>
+        <AlertSettings AlertMessage="CustomBaseline.UnitMonitorServiceCheckTaskScheduler_AlertMessageResourceID">
+          <AlertOnState>Error</AlertOnState>
+          <AutoResolve>true</AutoResolve>
+          <AlertPriority>Normal</AlertPriority>
+          <AlertSeverity>Error</AlertSeverity>
+          <AlertParameters>
+            <AlertParameter1>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</AlertParameter1>
+          </AlertParameters>
+        </AlertSettings>
+        <OperationalStates>
+          <OperationalState ID="Running" MonitorTypeStateID="Running" HealthState="Success" />
+          <OperationalState ID="NotRunning" MonitorTypeStateID="NotRunning" HealthState="Error" />
+        </OperationalStates>
+        <Configuration>
+          <ComputerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</ComputerName>
+          <ServiceName>Schedule</ServiceName>
+          <CheckStartupType>False</CheckStartupType>
+        </Configuration>
+      </UnitMonitor>
+      <UnitMonitor ID="CustomBaseline.UnitMonitorTCPPort3389ConnectionRefused" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="CustomBaseline.TCPPort3389" Remotable="true" Priority="Normal" TypeID="CustomBaseline.MonitorTypeTCPPortCheckConnectionRefused" ConfirmDelivery="true">
+        <Category>AvailabilityHealth</Category>
+        <AlertSettings AlertMessage="CustomBaseline.UnitMonitorTCPPort3389ConnectionRefused_AlertMessageResourceID">
+          <AlertOnState>Error</AlertOnState>
+          <AutoResolve>true</AutoResolve>
+          <AlertPriority>Normal</AlertPriority>
+          <AlertSeverity>Error</AlertSeverity>
+          <AlertParameters>
+            <AlertParameter1>$Config/Port$</AlertParameter1>
+            <AlertParameter2>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</AlertParameter2>
+          </AlertParameters>
+        </AlertSettings>
+        <OperationalStates>
+          <OperationalState ID="UIGeneratedOpStateId263a0d4bb2b04870ad151b7826ebb2ef" MonitorTypeStateID="State_OK" HealthState="Success" />
+          <OperationalState ID="UIGeneratedOpStateId5e2d75f7246b4495bdf4dce0f4239c84" MonitorTypeStateID="State_CRITICAL" HealthState="Error" />
+        </OperationalStates>
+        <Configuration>
+          <ServerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</ServerName>
+          <Port>3389</Port>
+          <IntervalSeconds>300</IntervalSeconds>
+        </Configuration>
+      </UnitMonitor>
+      <UnitMonitor ID="CustomBaseline.UnitMonitorTCPPort3389DNSResolutionFailure" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="CustomBaseline.TCPPort3389" Remotable="true" Priority="Normal" TypeID="CustomBaseline.MonitorTypeTCPPortCheckDNSResolutionFailure" ConfirmDelivery="true">
+        <Category>AvailabilityHealth</Category>
+        <AlertSettings AlertMessage="CustomBaseline.UnitMonitorTCPPort3389DNSResolutionFailure_AlertMessageResourceID">
+          <AlertOnState>Error</AlertOnState>
+          <AutoResolve>true</AutoResolve>
+          <AlertPriority>Normal</AlertPriority>
+          <AlertSeverity>Error</AlertSeverity>
+          <AlertParameters>
+            <AlertParameter1>$Config/Port$</AlertParameter1>
+            <AlertParameter2>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</AlertParameter2>
+          </AlertParameters>
+        </AlertSettings>
+        <OperationalStates>
+          <OperationalState ID="UIGeneratedOpStateIdcd74a6b305284093bd36dc4e097f2adc" MonitorTypeStateID="State_OK" HealthState="Success" />
+          <OperationalState ID="UIGeneratedOpStateId189cc8b16dd3442c9653c161c4956cd1" MonitorTypeStateID="State_CRITICAL" HealthState="Error" />
+        </OperationalStates>
+        <Configuration>
+          <IntervalSeconds>300</IntervalSeconds>
+          <ServerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</ServerName>
+          <Port>3389</Port>
+        </Configuration>
+      </UnitMonitor>
+      <UnitMonitor ID="CustomBaseline.UnitMonitorTCPPort3389HostUnreachable" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="CustomBaseline.TCPPort3389" Remotable="true" Priority="Normal" TypeID="CustomBaseline.MonitorTypeTCPPortCheckHostUnreachable" ConfirmDelivery="true">
+        <Category>AvailabilityHealth</Category>
+        <AlertSettings AlertMessage="CustomBaseline.UnitMonitorTCPPort3389HostUnreachable_AlertMessageResourceID">
+          <AlertOnState>Error</AlertOnState>
+          <AutoResolve>true</AutoResolve>
+          <AlertPriority>Normal</AlertPriority>
+          <AlertSeverity>Error</AlertSeverity>
+          <AlertParameters>
+            <AlertParameter1>$Config/Port$</AlertParameter1>
+            <AlertParameter2>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</AlertParameter2>
+          </AlertParameters>
+        </AlertSettings>
+        <OperationalStates>
+          <OperationalState ID="UIGeneratedOpStateId087cf75d655743169f8aee8c4568e8ae" MonitorTypeStateID="State_OK" HealthState="Success" />
+          <OperationalState ID="UIGeneratedOpStateIdcfa8c7bf109a470fa18c57fb5f72e47c" MonitorTypeStateID="State_CRITICAL" HealthState="Error" />
+        </OperationalStates>
+        <Configuration>
+          <IntervalSeconds>300</IntervalSeconds>
+          <ServerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</ServerName>
+          <Port>3389</Port>
+        </Configuration>
+      </UnitMonitor>
+      <UnitMonitor ID="CustomBaseline.UnitMonitorTCPPort3389TimedOut" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="CustomBaseline.TCPPort3389" Remotable="true" Priority="Normal" TypeID="CustomBaseline.MonitorTypeTCPPortCheckTimedOut" ConfirmDelivery="true">
+        <Category>AvailabilityHealth</Category>
+        <AlertSettings AlertMessage="CustomBaseline.UnitMonitorTCPPort3389TimedOut_AlertMessageResourceID">
+          <AlertOnState>Error</AlertOnState>
+          <AutoResolve>true</AutoResolve>
+          <AlertPriority>Normal</AlertPriority>
+          <AlertSeverity>Error</AlertSeverity>
+          <AlertParameters>
+            <AlertParameter1>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</AlertParameter1>
+          </AlertParameters>
+        </AlertSettings>
+        <OperationalStates>
+          <OperationalState ID="UIGeneratedOpStateId793a65b7d8d74a99a9bf8431758e9329" MonitorTypeStateID="State_OK" HealthState="Success" />
+          <OperationalState ID="UIGeneratedOpStateId4d99489163af470aadc7e9c231fe214d" MonitorTypeStateID="State_CRITICAL" HealthState="Error" />
+        </OperationalStates>
+        <Configuration>
+          <IntervalSeconds>300</IntervalSeconds>
+          <ServerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</ServerName>
+          <Port>3389</Port>
+        </Configuration>
+      </UnitMonitor>
+      <UnitMonitor ID="CustomBaseline.UnitMonitorTotalPercentProcessorUtilization" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" ParentMonitorID="CustomBaseline.ProcessorHealth" Remotable="true" Priority="Normal" TypeID="CustomBaseline.MonitorTypePSScriptTotalCPUUsageCheck" ConfirmDelivery="true">
+        <Category>PerformanceHealth</Category>
+        <AlertSettings AlertMessage="CustomBaseline.UnitMonitorTotalPercentProcessorUtilization_AlertMessageResourceID">
+          <AlertOnState>Error</AlertOnState>
+          <AutoResolve>true</AutoResolve>
+          <AlertPriority>Normal</AlertPriority>
+          <AlertSeverity>Error</AlertSeverity>
+          <AlertParameters>
+            <AlertParameter1>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</AlertParameter1>
+            <AlertParameter2><![CDATA[$Data/Context/Context/DataItem/Property[@Name='TotalCPU(%)']$]]></AlertParameter2>
+          </AlertParameters>
+        </AlertSettings>
+        <OperationalStates>
+          <OperationalState ID="UIGeneratedOpStateId75ababe5342945b9b5fed268f8b1ff1c" MonitorTypeStateID="State_OK" HealthState="Success" />
+          <OperationalState ID="UIGeneratedOpStateIde47ce200deae42af893ca30a9b15b3ea" MonitorTypeStateID="State_CRITICAL" HealthState="Error" />
+        </OperationalStates>
+        <Configuration>
+          <IntervalSeconds>300</IntervalSeconds>
+          <Threshold>90.00</Threshold>
+          <ConsolidationInterval>990</ConsolidationInterval>
+          <ConsolidationNumberOfSamples>3</ConsolidationNumberOfSamples>
+        </Configuration>
+      </UnitMonitor>
+    </Monitors>
+    <Recoveries>
+      <Recovery ID="CustomBaseline.RecoveryTaskScheduler" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" Monitor="CustomBaseline.UnitMonitorServiceCheckTaskScheduler" ResetMonitor="false" ExecuteOnState="Error" Remotable="true" Timeout="300">
+        <Category>Custom</Category>
+        <WriteAction ID="StartService" TypeID="Windows!Microsoft.Windows.ServiceControlManager.StartService">
+          <ComputerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</ComputerName>
+          <ServiceName>Schedule</ServiceName>
+        </WriteAction>
+      </Recovery>
+    </Recoveries>
+  </Monitoring>
+  <Presentation>
+    <Views>
+      <View ID="CustomBaseline.ActiveAlerts" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" TypeID="SC!Microsoft.SystemCenter.AlertViewType" Visible="true">
+        <Category>Alert</Category>
+        <Criteria>
+          <ResolutionState>
+            <StateRange Operator="NotEquals">255</StateRange>
+          </ResolutionState>
+        </Criteria>
+      </View>
+      <View ID="CustomBaseline.AllAlerts" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" TypeID="SC!Microsoft.SystemCenter.AlertViewType" Visible="true">
+        <Category>Alert</Category>
+        <Criteria />
+      </View>
+      <View ID="CustomBaseline.DiskPerformance" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" TypeID="SC!Microsoft.SystemCenter.PerformanceViewType" Visible="true">
+        <Category>PerformanceCollection</Category>
+        <Criteria>
+          <RuleList>
+            <Rule>$MPElement[Name='CustomBaseline.PSScriptDrive_C_SpaceCheckRule']$</Rule>
+            <Rule>$MPElement[Name='CustomBaseline.PSScriptDrive_D_SpaceCheckRule']$</Rule>
+          </RuleList>
+        </Criteria>
+      </View>
+      <View ID="CustomBaseline.MemoryPerformance" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" TypeID="SC!Microsoft.SystemCenter.PerformanceViewType" Visible="true">
+        <Category>PerformanceCollection</Category>
+        <Criteria>
+          <RuleList>
+            <Rule>$MPElement[Name='CustomBaseline.PSScriptMemoryUsageCheckMemoryFreeMBRule']$</Rule>
+            <Rule>$MPElement[Name='CustomBaseline.PSScriptMemoryUsageCheckMemoryFreePercentRule']$</Rule>
+          </RuleList>
+        </Criteria>
+      </View>
+      <View ID="CustomBaseline.MonitoredServers" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" TypeID="SC!Microsoft.SystemCenter.StateViewType" Visible="true">
+        <Category>Discovery</Category>
+        <Criteria />
+      </View>
+      <View ID="CustomBaseline.ProcessorPerformance" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" TypeID="SC!Microsoft.SystemCenter.PerformanceViewType" Visible="true">
+        <Category>PerformanceCollection</Category>
+        <Criteria>
+          <RuleList>
+            <Rule>$MPElement[Name='CustomBaseline.PSScriptTotalCPUUsageCheckRule']$</Rule>
+          </RuleList>
+        </Criteria>
+      </View>
+      <View ID="CustomBaseline.TCPPort3389Performance" Accessibility="Internal" Enabled="true" Target="CustomBaseline.Hosts" TypeID="SC!Microsoft.SystemCenter.PerformanceViewType" Visible="true">
+        <Category>PerformanceCollection</Category>
+        <Criteria>
+          <RuleList>
+            <Rule>$MPElement[Name='CustomBaseline.TCPPortCheck3389ConnectionTimeRule']$</Rule>
+          </RuleList>
+        </Criteria>
+      </View>
+    </Views>
+    <Folders>
+      <Folder ID="CustomBaseline.CustomView" Accessibility="Internal" ParentFolder="SC!Microsoft.SystemCenter.Monitoring.ViewFolder.Root" />
+      <Folder ID="CustomBaseline.PerformanceGraphs" Accessibility="Internal" ParentFolder="CustomBaseline.CustomView" />
+    </Folders>
+    <FolderItems>
+      <FolderItem ElementID="CustomBaseline.ActiveAlerts" Folder="CustomBaseline.CustomView" />
+      <FolderItem ElementID="CustomBaseline.AllAlerts" Folder="CustomBaseline.CustomView" />
+      <FolderItem ElementID="CustomBaseline.DiskPerformance" Folder="CustomBaseline.PerformanceGraphs" />
+      <FolderItem ElementID="CustomBaseline.MemoryPerformance" Folder="CustomBaseline.PerformanceGraphs" />
+      <FolderItem ElementID="CustomBaseline.MonitoredServers" Folder="CustomBaseline.CustomView" />
+      <FolderItem ElementID="CustomBaseline.ProcessorPerformance" Folder="CustomBaseline.PerformanceGraphs" />
+      <FolderItem ElementID="CustomBaseline.TCPPort3389Performance" Folder="CustomBaseline.PerformanceGraphs" />
+    </FolderItems>
+    <StringResources>
+      <StringResource ID="CustomBaseline.UnitMonitorDriveSpaceCheck_C_AlertMessageResourceID" />
+      <StringResource ID="CustomBaseline.UnitMonitorDriveSpaceCheck_D_AlertMessageResourceID" />
+      <StringResource ID="CustomBaseline.UnitMonitorMemoryUsage_AlertMessageResourceID" />
+      <StringResource ID="CustomBaseline.UnitMonitorServiceCheckTaskScheduler_AlertMessageResourceID" />
+      <StringResource ID="CustomBaseline.UnitMonitorTCPPort3389ConnectionRefused_AlertMessageResourceID" />
+      <StringResource ID="CustomBaseline.UnitMonitorTCPPort3389DNSResolutionFailure_AlertMessageResourceID" />
+      <StringResource ID="CustomBaseline.UnitMonitorTCPPort3389HostUnreachable_AlertMessageResourceID" />
+      <StringResource ID="CustomBaseline.UnitMonitorTCPPort3389TimedOut_AlertMessageResourceID" />
+      <StringResource ID="CustomBaseline.UnitMonitorTotalPercentageProcessorUtilization_AlertMessageResourceID" />
+      <StringResource ID="CustomBaseline.UnitMonitorTotalPercentProcessorUtilization_AlertMessageResourceID" />
+    </StringResources>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="CustomBaseline">
+          <Name>Custom Baseline</Name>
+          <Description>Custom Baseline Management Pack. Last Updated - R. Irujo 10.11.2012.</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.ActiveAlerts">
+          <Name>Active Alerts</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.AllAlerts">
+          <Name>All Alerts</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.CustomView">
+          <Name>Custom Baseline Monitors</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.Discovery">
+          <Name>Custom Baseline Discovery</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.DiskPerformance">
+          <Name>Disk Performance</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.DriveSpaceHealth">
+          <Name>Drive Space Health</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.Hosts">
+          <Name>Custom Baseline Hosts</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.MemoryHealth">
+          <Name>Memory Health</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.MemoryPerformance">
+          <Name>Memory Performance</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.MonitoredServers">
+          <Name>Monitored Servers</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.MonitorTypePSScriptMemoryUsageCheck">
+          <Name>Monitor Type PowerShell Script Memory Usage Check</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.MonitorTypePSScriptSingleDriveSpaceCheck">
+          <Name>Monitor Type PowerShell Script Single Drive Space Check</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.MonitorTypePSScriptTotalCPUUsageCheck">
+          <Name>Monitor Type PowerShell Script Total CPU Usage Check</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.MonitorTypeTCPPortCheckConnectionRefused">
+          <Name>Monitor Type TCP Port Check Connection Refused</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.MonitorTypeTCPPortCheckDNSResolutionFailure">
+          <Name>Monitor Type TCP Port Check DNS Resolution Failure</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.MonitorTypeTCPPortCheckHostUnreachable">
+          <Name>Monitor Type TCP Port Check Host Unreachable</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.MonitorTypeTCPPortCheckTimedOut">
+          <Name>Monitor Type TCP Port Check Timed Out</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PerformanceGraphs">
+          <Name>Performance Graphs</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.ProcessorHealth">
+          <Name>Processor Health</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.ProcessorPerformance">
+          <Name>Processor Performance</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptDrive_C_SpaceCheckRule">
+          <Name>C:\ - Drive Space Free</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptDrive_D_SpaceCheckRule">
+          <Name>D:\ - Drive Space Free</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptMemoryUsageCheckDataSource">
+          <Name>Custom Baseline PowerShell Script Memory Usage Data Source</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptMemoryUsageCheckMemoryFreeMBRule">
+          <Name>Memory Free (MB)</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptMemoryUsageCheckMemoryFreePercentRule">
+          <Name><![CDATA[Memory Free (%)]]></Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptMemoryUsageCheckProbeAction">
+          <Name>Custom Baseline PowerShell Script Memory Usage Check Probe Action</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptSingleDriveSpaceCheckDataSource">
+          <Name>Custom Baseline PowerShell Script Single Drive Space Check Data Source</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptSingleDriveSpaceCheckProbeAction">
+          <Name>Custom Baseline PowerShell Script Single Drive Space Check Probe Action</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptTotalCPUUsageCheckDataSource">
+          <Name>PowerShell Script Total CPU Usage Check Data Source</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptTotalCPUUsageCheckProbeAction">
+          <Name>PowerShell Script Total CPU Usage Check Probe Action</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.PSScriptTotalCPUUsageCheckRule">
+          <Name><![CDATA[Total CPU %]]></Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.RecoveryTaskScheduler">
+          <Name>Recovery Task Scheduler Service</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.ServicesHealth">
+          <Name>Services Health</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.TCPPort3389">
+          <Name>TCP Port 3389</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.TCPPort3389Performance">
+          <Name>TCP Port 3389 - Perfomance</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.TCPPortCheck3389ConnectionTimeRule">
+          <Name>TCP Port 3389 - Connection Time</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.TCPPortCheckDataSource">
+          <Name>TCP Port Check Data Source</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.TCPPortCheckProbeAction">
+          <Name>TCP Port Check Probe Action</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.TCPPortHealth">
+          <Name>TCP Port Health</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorDriveSpaceCheck_C">
+          <Name>Drive Space - C:\</Name>
+          <Description>See the Product Knowledge Tab for further details.</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorDriveSpaceCheck_C" SubElementID="UIGeneratedOpStateId270d19d97f2940c391d35c6aa3b8b330">
+          <Name>State_OK</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorDriveSpaceCheck_C" SubElementID="UIGeneratedOpStateId69c2409b0aab4fd8a2e1566b9dba5ce1">
+          <Name>State_CRITICAL</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorDriveSpaceCheck_C_AlertMessageResourceID">
+          <Name>Drive Space - C:\</Name>
+          <Description><![CDATA[On {0}, there is {1}% Free Space Left on Drive {2}. ]]></Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorDriveSpaceCheck_D">
+          <Name>Drive Space - D:\</Name>
+          <Description>See the Product Knowledge Tab for further details.</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorDriveSpaceCheck_D" SubElementID="UIGeneratedOpStateId3e977ee08fa74b27889567a465026ed9">
+          <Name>State_CRITICAL</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorDriveSpaceCheck_D" SubElementID="UIGeneratedOpStateIdef8182741c3f488c8c74c2602fe4c8af">
+          <Name>State_OK</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorDriveSpaceCheck_D_AlertMessageResourceID">
+          <Name>Drive Space - D:\</Name>
+          <Description><![CDATA[On {0}, there is {1}% Free Space Left on Drive {2}. ]]></Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorMemoryUsage">
+          <Name>Memory Usage</Name>
+          <Description>See the Product Knowledge Tab for further details.</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorMemoryUsage" SubElementID="UIGeneratedOpStateId112af943eb754f288181f5bdd114b8a3">
+          <Name>State_OK</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorMemoryUsage" SubElementID="UIGeneratedOpStateId415d292efbb244dabf7bb218cb7f8a67">
+          <Name>State_CRITICAL</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorMemoryUsage_AlertMessageResourceID">
+          <Name>Memory Usage</Name>
+          <Description><![CDATA[The Amount of Memory is running low on {0}. Only {1}% is currently available. ]]></Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorServiceCheckTaskScheduler">
+          <Name>Task Scheduler Service</Name>
+          <Description />
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorServiceCheckTaskScheduler" SubElementID="NotRunning">
+          <Name>NotRunning</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorServiceCheckTaskScheduler" SubElementID="Running">
+          <Name>Running</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorServiceCheckTaskScheduler_AlertMessageResourceID">
+          <Name>Task Scheduler Service</Name>
+          <Description>The Task Scheduler Service on {0} is not running.</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389ConnectionRefused">
+          <Name>TCP Port 3389 - Connection Refused</Name>
+          <Description>See the Product Knowledge Tab for further details.</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389ConnectionRefused" SubElementID="UIGeneratedOpStateId263a0d4bb2b04870ad151b7826ebb2ef">
+          <Name>State_OK</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389ConnectionRefused" SubElementID="UIGeneratedOpStateId5e2d75f7246b4495bdf4dce0f4239c84">
+          <Name>State_CRITICAL</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389ConnectionRefused_AlertMessageResourceID">
+          <Name>TCP Port 3389 - Connection Refused</Name>
+          <Description>TCP Port {0} on {1} returned back a Status Code of "Connection Refused".</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389DNSResolutionFailure">
+          <Name>TCP Port 3389 - DNS Resolution Failure</Name>
+          <Description>See the Product Knowledge Tab for further details.</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389DNSResolutionFailure" SubElementID="UIGeneratedOpStateId189cc8b16dd3442c9653c161c4956cd1">
+          <Name>State_CRITICAL</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389DNSResolutionFailure" SubElementID="UIGeneratedOpStateIdcd74a6b305284093bd36dc4e097f2adc">
+          <Name>State_OK</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389DNSResolutionFailure_AlertMessageResourceID">
+          <Name>TCP Port 3389 - DNS Resolution Failure</Name>
+          <Description>TCP Port {0} on {1} returned back a Status Code of "DNS Resolution Failure".</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389HostUnreachable">
+          <Name>TCP Port 3389 - Host Unreachable</Name>
+          <Description>See the Product Knowledge Tab for further details.</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389HostUnreachable" SubElementID="UIGeneratedOpStateId087cf75d655743169f8aee8c4568e8ae">
+          <Name>State_OK</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389HostUnreachable" SubElementID="UIGeneratedOpStateIdcfa8c7bf109a470fa18c57fb5f72e47c">
+          <Name>State_CRITICAL</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389HostUnreachable_AlertMessageResourceID">
+          <Name>TCP Port 3389 - Host Unreachable</Name>
+          <Description>TCP Port {0} on {1} returned back a Status Code of "DNS Resolution Failure".</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389TimedOut">
+          <Name>TCP Port 3389 - Timed Out</Name>
+          <Description>See the Product Knowledge Tab for further details.</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389TimedOut" SubElementID="UIGeneratedOpStateId4d99489163af470aadc7e9c231fe214d">
+          <Name>State_CRITICAL</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389TimedOut" SubElementID="UIGeneratedOpStateId793a65b7d8d74a99a9bf8431758e9329">
+          <Name>State_OK</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTCPPort3389TimedOut_AlertMessageResourceID">
+          <Name>TCP Port 3389 - Timed Out</Name>
+          <Description>The TCP Port 3389 Check Monitor on {0} returned back a Status Code of "Timed Out".</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTotalPercentageProcessorUtilization_AlertMessageResourceID">
+          <Name><![CDATA[Total % Processor Utilization]]></Name>
+          <Description><![CDATA[Total % Processor Utilization on {0} is currently {1}%.]]></Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTotalPercentProcessorUtilization">
+          <Name><![CDATA[Total % Processor Utilization]]></Name>
+          <Description>See the Product Knowledge Tab for further details.</Description>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTotalPercentProcessorUtilization" SubElementID="UIGeneratedOpStateId75ababe5342945b9b5fed268f8b1ff1c">
+          <Name>State_OK</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTotalPercentProcessorUtilization" SubElementID="UIGeneratedOpStateIde47ce200deae42af893ca30a9b15b3ea">
+          <Name>State_CRITICAL</Name>
+        </DisplayString>
+        <DisplayString ElementID="CustomBaseline.UnitMonitorTotalPercentProcessorUtilization_AlertMessageResourceID">
+          <Name><![CDATA[Total % Processor Utilization]]></Name>
+          <Description><![CDATA[Total % Processor Utilization on {0} is currently at {1}%.
+]]></Description>
+        </DisplayString>
+      </DisplayStrings>
+      <KnowledgeArticles>
+        <KnowledgeArticle ElementID="CustomBaseline" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Custom Baseline Management Pack</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:para>Provides Monitoring For:</maml:para>
+              <maml:para>Drive Space</maml:para>
+              <maml:para>Memory Usage</maml:para>
+              <maml:para><![CDATA[Total % Processor Utilization]]></maml:para>
+              <maml:para>TCP Port 3389 (RDP)</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Additional</maml:title>
+              <maml:para>Discovery of Hosts is based on the following RegistryKey Entry:</maml:para>
+              <maml:para>HKLM\SOFTWARE\SCOM\CustomBaseline</maml:para>
+              <maml:para />
+              <maml:para>The Discovery Class is SystemCenter.Agent [SC!Microsoft.SystemCenter.Agent]. At this time, this Management Pack will NOT work on hosts that are Agentless!</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>External</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="CustomBaseline.UnitMonitorDriveSpaceCheck_C" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Monitors the Disk Space of a particular Drive on a Host.</maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:para>The Default values are below:</maml:para>
+              <maml:para>Interval Seconds = 600 (10 Minutes)</maml:para>
+              <maml:para><![CDATA[Threshold = 10.00 (10%)]]></maml:para>
+              <maml:para>Monitor Type = PERCENT</maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Causes</maml:title>
+              <maml:para>By Default, the monitor will go into a Critical State if the Amount of Disk Space available falls below the set Threshold value. </maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Resolutions</maml:title>
+              <maml:para>The monitor will auto-resolve itself once the amount of Disk Space goes above the Set Threshold value. The Drive should be reviewed to see if it can be have files moved or deleted off of it. Additional storage may need to be provided or the drive extended if it is part of a VM.</maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Additional</maml:title>
+              <maml:para>The Monitor Type Value can be set to either PERCENT or MB. If the Monitor Type Value is set to PERCENT, The Threshold Value will be determined by the Percentage of Free Space on the Disk. If the Monitor Type Value is set to MB, the Threshold Value will be determined by the Number of Megabytes of Free Space on the Disk.</maml:para>
+              <maml:para />
+              <maml:para>Example 1:</maml:para>
+              <maml:para>Threshold = 15.00</maml:para>
+              <maml:para>Monitor Type = PERCENT</maml:para>
+              <maml:para />
+              <maml:para><![CDATA[The Monitor will go into a Critical State if the amount of Free Space on the Drive falls below 15%.]]></maml:para>
+              <maml:para />
+              <maml:para />
+              <maml:para>Example 2:</maml:para>
+              <maml:para>Threshold = 500.00</maml:para>
+              <maml:para>Monitor Type = MB</maml:para>
+              <maml:para />
+              <maml:para>The Monitor will go into a Critical State if the amount of Free Space on the Drive falls below 500 MB. </maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>External</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="CustomBaseline.UnitMonitorDriveSpaceCheck_D" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Monitors the Disk Space of a particular Drive on a Host.</maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:para>The Default values are below:</maml:para>
+              <maml:para>Interval Seconds = 600 (10 Minutes)</maml:para>
+              <maml:para><![CDATA[Threshold = 10.00 (10%)]]></maml:para>
+              <maml:para>Monitor Type = PERCENT</maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Causes</maml:title>
+              <maml:para>By Default, the monitor will go into a Critical State if the Amount of Disk Space available falls below the set Threshold value. </maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Resolutions</maml:title>
+              <maml:para>The monitor will auto-resolve itself once the amount of Disk Space goes above the Set Threshold value. The Drive should be reviewed to see if it can be have files moved or deleted off of it. Additional storage may need to be provided or the drive extended if it is part of a VM.</maml:para>
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Additional</maml:title>
+              <maml:para>The Monitor Type Value can be set to either PERCENT or MB. If the Monitor Type Value is set to PERCENT, The Threshold Value will be determined by the Percentage of Free Space on the Disk. If the Monitor Type Value is set to MB, the Threshold Value will be determined by the Number of Megabytes of Free Space on the Disk.</maml:para>
+              <maml:para />
+              <maml:para>Example 1:</maml:para>
+              <maml:para>Threshold = 15.00</maml:para>
+              <maml:para>Monitor Type = PERCENT</maml:para>
+              <maml:para />
+              <maml:para><![CDATA[The Monitor will go into a Critical State if the amount of Free Space on the Drive falls below 15%.]]></maml:para>
+              <maml:para />
+              <maml:para />
+              <maml:para>Example 2:</maml:para>
+              <maml:para>Threshold = 500.00</maml:para>
+              <maml:para>Monitor Type = MB</maml:para>
+              <maml:para />
+              <maml:para>The Monitor will go into a Critical State if the amount of Free Space on the Drive falls below 500 MB. </maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>External</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="CustomBaseline.UnitMonitorMemoryUsage" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Monitors the Memory Usage on a Host.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:para>Default values are below:</maml:para>
+              <maml:para>Interval Seconds = 300 (5 Minutes)</maml:para>
+              <maml:para><![CDATA[Threshold = 10.00 (10%)]]></maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Causes</maml:title>
+              <maml:para><![CDATA[By Default, the monitor will go into a Critical State if the Amount of Memory on a Host falls below 10%. ]]></maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Resolutions</maml:title>
+              <maml:para>Login to the Host and determine which processes are consuming memory to determine if they can be stopped or not. Additional memory may need to be added to the Host.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Additional</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>External</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="CustomBaseline.UnitMonitorServiceCheckTaskScheduler" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Monitors the State of a Defined Service on a Host.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:para>By Default, all Service Monitors check to see if the defined Service is Started on the Host it is associated with. Additionally, all Service Monitors are NOT checked to see if they run on startup due to the nature of certain customized Applications. Finally, a Recovery Task is defined for all Monitored Services to automatically try and Start a Service if a Monitored Service is found not in a Started State.</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Causes</maml:title>
+              <maml:para>The Monitor will go into a Critical State is the Monitored Service is not in a Started State.</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Resolutions</maml:title>
+              <maml:para>The Monitor will try and start the Monitored Service using a Recovery Task if the Service is not in a Started State. If the Recovery Task fails, login to the Host and check on the Status of the Service in the Services Console. Additionally, review the Logs in Event Viewer to potentially determine the cause of the problem.</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Additional</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>External</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="CustomBaseline.UnitMonitorTCPPort3389ConnectionRefused" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Monitors the State of a defined Port on a Host.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Causes</maml:title>
+              <maml:para>The Monitor will go into a Critical State if any of the following Status Codes are returned:</maml:para>
+              <maml:para />
+              <maml:table>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>
+                      <maml:ui>Status Code</maml:ui>
+                    </maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>
+                      <maml:ui>Definition</maml:ui>
+                    </maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Connection Timed Out</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952460</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Connection Refused</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952461</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Host Unreachable</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952465</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>DNS Resolution Failure</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147953401</maml:para>
+                  </maml:entry>
+                </maml:row>
+              </maml:table>
+              <maml:para />
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Resolutions</maml:title>
+              <maml:para>The Monitor Will automatically resolve itself once the Port becomes available again. The recommended course of action should be to ping the Host to determine if it is available. If the host is available, then RDP into the Host to determine if the Port is associated with a particular Service and verify that the associated Service is running.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Additional</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>External</maml:title>
+              <maml:para>Additional Information about the TCP Port Monitor can be found below:</maml:para>
+              <maml:para />
+              <maml:para>
+                <maml:navigationLink>
+                  <maml:linkText>http://msdn.microsoft.com/en-us/library/jj130214.aspx</maml:linkText>
+                  <maml:uri href="http://msdn.microsoft.com/en-us/library/jj130214.aspx" />
+                </maml:navigationLink>
+              </maml:para>
+              <maml:para />
+              <maml:para />
+              <maml:para />
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="CustomBaseline.UnitMonitorTCPPort3389DNSResolutionFailure" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Monitors the State of a defined Port on a Host.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Causes</maml:title>
+              <maml:para>The Monitor will go into a Critical State if any of the following Status Codes are returned:</maml:para>
+              <maml:para />
+              <maml:table>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>
+                      <maml:ui>Status Code</maml:ui>
+                    </maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>
+                      <maml:ui>Definition</maml:ui>
+                    </maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Connection Timed Out</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952460</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Connection Refused</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952461</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Host Unreachable</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952465</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>DNS Resolution Failure</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147953401</maml:para>
+                  </maml:entry>
+                </maml:row>
+              </maml:table>
+              <maml:para />
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Resolutions</maml:title>
+              <maml:para>The Monitor Will automatically resolve itself once the Port becomes available again. The recommended course of action should be to ping the Host to determine if it is available. If the host is available, then RDP into the Host to determine if the Port is associated with a particular Service and verify that the associated Service is running.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Additional</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>External</maml:title>
+              <maml:para>Additional Information about the TCP Port Monitor can be found below:</maml:para>
+              <maml:para />
+              <maml:para>
+                <maml:navigationLink>
+                  <maml:linkText>http://msdn.microsoft.com/en-us/library/jj130214.aspx</maml:linkText>
+                  <maml:uri href="http://msdn.microsoft.com/en-us/library/jj130214.aspx" />
+                </maml:navigationLink>
+              </maml:para>
+              <maml:para />
+              <maml:para />
+              <maml:para />
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="CustomBaseline.UnitMonitorTCPPort3389HostUnreachable" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Monitors the State of a defined Port on a Host.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Causes</maml:title>
+              <maml:para>The Monitor will go into a Critical State if any of the following Status Codes are returned:</maml:para>
+              <maml:para />
+              <maml:table>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>
+                      <maml:ui>Status Code</maml:ui>
+                    </maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>
+                      <maml:ui>Definition</maml:ui>
+                    </maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Connection Timed Out</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952460</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Connection Refused</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952461</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Host Unreachable</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952465</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>DNS Resolution Failure</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147953401</maml:para>
+                  </maml:entry>
+                </maml:row>
+              </maml:table>
+              <maml:para />
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Resolutions</maml:title>
+              <maml:para>The Monitor Will automatically resolve itself once the Port becomes available again. The recommended course of action should be to ping the Host to determine if it is available. If the host is available, then RDP into the Host to determine if the Port is associated with a particular Service and verify that the associated Service is running.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Additional</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>External</maml:title>
+              <maml:para>Additional Information about the TCP Port Monitor can be found below:</maml:para>
+              <maml:para />
+              <maml:para>
+                <maml:navigationLink>
+                  <maml:linkText>http://msdn.microsoft.com/en-us/library/jj130214.aspx</maml:linkText>
+                  <maml:uri href="http://msdn.microsoft.com/en-us/library/jj130214.aspx" />
+                </maml:navigationLink>
+              </maml:para>
+              <maml:para />
+              <maml:para />
+              <maml:para />
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="CustomBaseline.UnitMonitorTCPPort3389TimedOut" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para>Monitors the State of a defined Port on a Host.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Causes</maml:title>
+              <maml:para>The Monitor will go into a Critical State if any of the following Status Codes are returned:</maml:para>
+              <maml:para />
+              <maml:table>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>
+                      <maml:ui>Status Code</maml:ui>
+                    </maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>
+                      <maml:ui>Definition</maml:ui>
+                    </maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Connection Timed Out</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952460</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Connection Refused</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952461</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>Host Unreachable</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147952465</maml:para>
+                  </maml:entry>
+                </maml:row>
+                <maml:row>
+                  <maml:entry>
+                    <maml:para>DNS Resolution Failure</maml:para>
+                  </maml:entry>
+                  <maml:entry>
+                    <maml:para>2147953401</maml:para>
+                  </maml:entry>
+                </maml:row>
+              </maml:table>
+              <maml:para />
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Resolutions</maml:title>
+              <maml:para>The Monitor Will automatically resolve itself once the Port becomes available again. The recommended course of action should be to ping the Host to determine if it is available. If the host is available, then RDP into the Host to determine if the Port is associated with a particular Service and verify that the associated Service is running.</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Additional</maml:title>
+              <maml:para>N/A</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>External</maml:title>
+              <maml:para>Additional Information about the TCP Port Monitor can be found below:</maml:para>
+              <maml:para />
+              <maml:para>
+                <maml:navigationLink>
+                  <maml:linkText>http://msdn.microsoft.com/en-us/library/jj130214.aspx</maml:linkText>
+                  <maml:uri href="http://msdn.microsoft.com/en-us/library/jj130214.aspx" />
+                </maml:navigationLink>
+              </maml:para>
+              <maml:para />
+              <maml:para />
+              <maml:para />
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+        <KnowledgeArticle ElementID="CustomBaseline.UnitMonitorTotalPercentProcessorUtilization" Visible="true">
+          <MamlContent>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Summary</maml:title>
+              <maml:para><![CDATA[Monitors the overall Total % Processor Utilization on a Host.]]></maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Configuration</maml:title>
+              <maml:para>Default values are below:</maml:para>
+              <maml:para>Interval Seconds = 300 (5 Minutes)</maml:para>
+              <maml:para><![CDATA[Threshold = 90.00 (90%)]]></maml:para>
+              <maml:para>Consolidation Interval = 990 (16.5 Minutes)</maml:para>
+              <maml:para>Consolidation Number Of Samples = 3</maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Causes</maml:title>
+              <maml:para><![CDATA[By Default, the monitor will go into a Critical State if the Total % Processor Time is over the Threshold Value 3 times in a row. In other words, if the Total % Processor Time on a Host is over 90% for more than 15 minutes, an Alert will be raised. The extra 1.5 Minutes are there in order to account for any monitoring check delays that may occur.]]></maml:para>
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Resolutions</maml:title>
+              <maml:para><![CDATA[The monitor will auto-resolve itself if the Total % Processor Time falls below the set Threshold Value. ]]></maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>Additional</maml:title>
+              <maml:para>The Consolidation Interval Value is determined using the following formula:</maml:para>
+              <maml:para />
+              <maml:para>(ConsolidationNumberOfSamples * IntervalSeconds) + (ConsolidationNumberOfSamples * IntervalSeconds) / 10</maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+            <maml:section xmlns:maml="http://schemas.microsoft.com/maml/2004/10">
+              <maml:title>External</maml:title>
+              <maml:para>More Information can be found in the Blog Posts of Jonathan Almquist:</maml:para>
+              <maml:para />
+              <maml:para>
+                <maml:navigationLink>
+                  <maml:linkText>http://blogs.technet.com/b/jonathanalmquist/archive/2011/06/21/windows-service-monitoring-reduce-false-alerts-with-consecutive-sample-</maml:linkText>
+                  <maml:uri href="http://blogs.technet.com/b/jonathanalmquist/archive/2011/06/21/windows-service-monitoring-reduce-false-alerts-with-consecutive-sample-module.aspx" />
+                </maml:navigationLink>
+              </maml:para>
+              <maml:para />
+              <maml:para>
+                <maml:navigationLink>
+                  <maml:linkText>http://blogs.technet.com/b/jonathanalmquist/archive/2011/06/24/windows-service-monitoring-reduce-false-alerts-part-2.aspx</maml:linkText>
+                  <maml:uri href="http://blogs.technet.com/b/jonathanalmquist/archive/2011/06/24/windows-service-monitoring-reduce-false-alerts-part-2.aspx" />
+                </maml:navigationLink>
+              </maml:para>
+              <maml:para />
+              <maml:para />
+            </maml:section>
+          </MamlContent>
+        </KnowledgeArticle>
+      </KnowledgeArticles>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPack>
